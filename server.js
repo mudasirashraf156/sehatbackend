@@ -4,7 +4,17 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
+// Update CORS to allow your production frontend domain
+// Replace 'https://your-frontend-domain.com' with your actual frontend URL
+app.use(cors({
+  origin: [
+    'http://localhost:3000',           // Local development
+    'https://sehatsuhul.vercel.app', // Replace with your production frontend URL
+    'http://10.203.187.88:3000'        // Your current network IP for testing
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/api/auth',     require('./routes/authRoutes'));
