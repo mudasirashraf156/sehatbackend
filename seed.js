@@ -26,7 +26,7 @@ async function seed() {
   const hashed = await bcrypt.hash('password123', 12);
 
   // Admin
-  await User.create({ firstName:'Admin', lastName:'SehatSuhul', email:'admin@sehatsuhul.pk', phone:'03000000000', password: hashed, role:'admin', isVerified:true, city:'Srinagar' });
+  await User.create({ firstName:'Admin', lastName:'sehatsehul', email:'admin@sehatsehul.pk', phone:'03000000000', password: hashed, role:'admin', isVerified:true, city:'Srinagar' });
   // Patient
   await User.create({ firstName:'Ahmed', lastName:'Khan', email:'patient@test.com', phone:'03009876543', password: hashed, role:'patient', city:'Srinagar' });
 
@@ -49,7 +49,7 @@ async function seed() {
     });
   }
   console.log('✅ Seeded! Use password: password123');
-  console.log('Admin: admin@sehatsuhul.pk | Patient: patient@test.com | Nurse: sara@nurse.com');
+  console.log('Admin: admin@sehatsehul.pk | Patient: patient@test.com | Nurse: sara@nurse.com');
   process.exit();
 }
 seed().catch(console.error);

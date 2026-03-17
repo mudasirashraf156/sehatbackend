@@ -10,7 +10,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',           // Local development
-    'https://sehatsuhul.vercel.app', // Replace with your production frontend URL
+    'https://sehatsehul.vercel.app', // Replace with your production frontend URL
     'http://10.203.187.88:3000'        // Your current network IP for testing
   ],
   credentials: true
@@ -21,9 +21,10 @@ app.use('/api/auth',     require('./routes/authRoutes'));
 app.use('/api/nurses',   require('./routes/nurseRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/reviews',  require('./routes/reviewRoutes'));
+app.use('/api/shops', require('./routes/shopRoutes'));
 app.use('/api/admin',    require('./routes/adminRoutes'));
 
-app.get('/', (req, res) => res.json({ status: 'SehatSuhul API ✅' }));
+app.get('/', (req, res) => res.json({ status: 'SehatSehul API ✅' }));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

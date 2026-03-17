@@ -17,3 +17,4 @@ exports.protect = async (req, res, next) => {
 exports.nurseOnly   = (req, res, next) => req.user?.role === 'nurse'   ? next() : res.status(403).json({ message: 'Nurses only' });
 exports.patientOnly = (req, res, next) => req.user?.role === 'patient' ? next() : res.status(403).json({ message: 'Patients only' });
 exports.adminOnly   = (req, res, next) => req.user?.role === 'admin'   ? next() : res.status(403).json({ message: 'Admins only' });
+exports.shopOwnerOnly = (req, res, next) => req.user?.role === 'shopOwner' ? next() : res.status(403).json({ message: 'Shop owners only' });
