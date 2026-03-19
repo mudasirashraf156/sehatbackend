@@ -9,11 +9,13 @@ router.use(protect, adminOnly);
 
 router.get('/stats', async (req, res) => {
   try {
-    const [totalPatients, totalNurses, totalBookings, pendingVerifications] = await Promise.all([
-      User.countDocuments({ role: 'patient' }),
-      User.countDocuments({ role: 'nurse' }),
-      Booking.countDocuments(),
-      NurseProfile.countDocuments({ isVerified: false })
+    const LabTest = require('../models/LabTest');
+const [totalPatients, totalNurses, totalBookings, pendingVerifications, totalLabTests] = await Promise.all([
+  User.countDocuments({ role: 'patient' }),
+  User.countDocuments({ role: 'nurse' }),
+  Booking.countDocuments(),
+  NurseProfile.countDocuments({ isVerified: false }),
+  LabTest.countDocuments({ status: 'pending' })
     ]);
     const recentBookings = await Booking.find().sort({ createdAt: -1 }).limit(5)
       .populate('patient', 'firstName lastName').populate('nurse', 'firstName lastName');

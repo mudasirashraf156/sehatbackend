@@ -23,7 +23,7 @@ app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/reviews',  require('./routes/reviewRoutes'));
 app.use('/api/shops', require('./routes/shopRoutes'));
 app.use('/api/admin',    require('./routes/adminRoutes'));
-
+app.use('/api/labtests', require('./routes/labTestRoutes'));
 app.get('/', (req, res) => res.json({ status: 'SehatSehul API ✅' }));
 
 mongoose.connect(process.env.MONGO_URI)
