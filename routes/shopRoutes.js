@@ -2,9 +2,15 @@ const express = require('express');
 const router  = express.Router();
 const multer  = require('multer');
 const path    = require('path');
+const fs      = require('fs');
 const MedicalShop = require('../models/MedicalShop');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
+// Auto-create uploads folder if it doesn't exist
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename:    (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
