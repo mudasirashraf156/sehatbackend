@@ -9,9 +9,10 @@ const app = express();
 // Replace 'https://your-frontend-domain.com' with your actual frontend URL
 app.use(cors({
   origin: [
-    'http://localhost:3000',           // Local development
-    'https://sehatsehul.vercel.app', // Replace with your production frontend URL
-    'http://10.203.187.88:3000'        // Your current network IP for testing
+    'http://localhost:3000',
+    'https://sehatsehul.in',
+    'https://www.sehatsehul.in',
+    'https://sehatsehul.vercel.app',
   ],
   credentials: true
 }));
