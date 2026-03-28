@@ -13,7 +13,9 @@ const userSchema = new mongoose.Schema({
   address:    { type: String, default: '' },
   isVerified: { type: Boolean, default: false },
   isActive:   { type: Boolean, default: true },
-  createdAt:  { type: Date, default: Date.now }
+  createdAt:  { type: Date, default: Date.now },
+  emailVerifyToken:   { type: String, default: '' },
+emailVerifyExpires: { type: Date },
 }, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
 userSchema.virtual('fullName').get(function() {

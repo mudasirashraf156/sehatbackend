@@ -24,7 +24,7 @@ const medicalShopSchema = new mongoose.Schema({
   },
   isPaid:      { type: Boolean, default: false },
   paymentRef:  { type: String, default: '' },
-  registrationFee: { type: Number, default: 499 },
+  registrationFee: { type: Number, default: 99 },
   rating:      { type: Number, default: 0 },
   totalReviews:{ type: Number, default: 0 },
   isVerified:  { type: Boolean, default: false },

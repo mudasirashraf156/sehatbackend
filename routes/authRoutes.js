@@ -4,14 +4,73 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const NurseProfile = require('../models/NurseProfile');
 const { protect } = require('../middleware/authMiddleware');
-
+const crypto = require('crypto');
+const { sendVerificationEmail, sendWelcomeEmail } = require('../utils/sendEmail');
 const token = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
 const safe = (u) => ({ _id: u._id, firstName: u.firstName, lastName: u.lastName, email: u.email, phone: u.phone, role: u.role, city: u.city, isVerified: u.isVerified });
-
+const generateVerifyToken = () => crypto.randomBytes(32).toString('hex');
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, password, role, specialization, licenseNumber, city } = req.body;
+   router.post('/register', async (req, res) => {
+  try {
+    const {
+      firstName, lastName, email, phone,
+      password, role, specialization, licenseNumber, city
+    } = req.body;
+
+    // ── SECURITY: block admin/unknown roles from self-registration ──
+    const allowedRoles = ['patient', 'nurse', 'shopOwner'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(403).json({ message: 'Invalid role. You cannot register with this role.' });
+    }
+
+    if (await User.findOne({ email }))
+      return res.status(400).json({ message: 'Email already registered' });
+
+    const user = await User.create({
+      firstName, lastName, email, phone,
+      password, role, city: city || '',
+      isVerified: false,
+    });
+
+    if (role === 'nurse') {
+      await NurseProfile.create({
+        user: user._id,
+        specialization,
+        licenseNumber,
+        city: city || '',
+        services: ['General Care', 'Medication Administration', 'Vital Signs Monitoring'],
+        availability: [
+          { day:'Monday',    startTime:'08:00', endTime:'18:00', available:true },
+          { day:'Tuesday',   startTime:'08:00', endTime:'18:00', available:true },
+          { day:'Wednesday', startTime:'08:00', endTime:'18:00', available:true },
+          { day:'Thursday',  startTime:'08:00', endTime:'18:00', available:true },
+          { day:'Friday',    startTime:'08:00', endTime:'18:00', available:true },
+        ]
+      });
+    }
+
+  // Generate email verify token
+const verifyToken = generateVerifyToken();
+user.emailVerifyToken   = verifyToken;
+user.emailVerifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs
+await user.save();
+
+await sendVerificationEmail(user.email, user.firstName, verifyToken);
+    res.status(201).json({
+      _id:        user._id,
+      firstName:  user.firstName,
+      lastName:   user.lastName,
+      email:      user.email,
+      role:       user.role,
+      isVerified: user.isVerified,
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
     if (await User.findOne({ email })) return res.status(400).json({ message: 'Email already registered' });
     const user = await User.create({ firstName, lastName, email, phone, password, role, city: city || '' });
     if (role === 'nurse') {
@@ -34,6 +93,13 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
+    if (!user.isVerified) {
+  return res.status(403).json({
+    message: 'Please verify your email first. Check your inbox.',
+    notVerified: true,
+    email: user.email,
+  });
+}
     const { email, password, role } = req.body;
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password)))
@@ -61,4 +127,48 @@ router.put('/profile', protect, async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
+// GET /api/auth/verify-email?token=xxx
+router.get('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+    const user = await User.findOne({
+      emailVerifyToken:   token,
+      emailVerifyExpires: { $gt: Date.now() },
+    });
+
+    if (!user) return res.status(400).json({ message: 'Invalid or expired verification link' });
+
+    user.isVerified         = true;
+    user.emailVerifyToken   = '';
+    user.emailVerifyExpires = undefined;
+    await user.save();
+
+    await sendWelcomeEmail(user.email, user.firstName, user.role);
+
+    // Redirect to frontend with success
+    res.redirect(`${process.env.FRONTEND_URL}/login?verified=true`);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST /api/auth/resend-verification
+router.post('/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Email not found' });
+    if (user.isVerified) return res.status(400).json({ message: 'Email already verified' });
+
+    const verifyToken = generateVerifyToken();
+    user.emailVerifyToken   = verifyToken;
+    user.emailVerifyExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await user.save();
+
+    await sendVerificationEmail(user.email, user.firstName, verifyToken);
+    res.json({ message: 'Verification email sent' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = router;
