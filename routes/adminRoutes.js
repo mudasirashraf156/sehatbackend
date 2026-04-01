@@ -32,7 +32,11 @@ router.get('/nurses', async (req, res) => {
 
 router.patch('/nurses/:id/verify', async (req, res) => {
   try {
-    const profile = await NurseProfile.findByIdAndUpdate(req.params.id, { isVerified: req.body.verify }, { new: true });
+    const profile = await NurseProfile.findByIdAndUpdate(
+      req.params.id,
+      { isVerified: req.body.verify, verificationPending: false },
+      { new: true }
+    );
     await User.findByIdAndUpdate(profile.user, { isVerified: req.body.verify });
     res.json(profile);
   } catch (err) { res.status(500).json({ message: err.message }); }

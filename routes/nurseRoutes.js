@@ -5,6 +5,23 @@ const NurseProfile = require('../models/NurseProfile');
 const Review = require('../models/Review');
 const { protect, nurseOnly } = require('../middleware/authMiddleware');
 
+// POST apply for verification (nurse pays ₹99, submits UTR)
+router.post('/apply-verification', protect, nurseOnly, async (req, res) => {
+  try {
+    const { utr } = req.body;
+    if (!utr) return res.status(400).json({ message: 'UTR / Transaction ID is required.' });
+    const profile = await NurseProfile.findOne({ user: req.user._id });
+    if (!profile) return res.status(404).json({ message: 'Nurse profile not found.' });
+    if (profile.isVerified) return res.status(400).json({ message: 'Already verified.' });
+    profile.verificationPending = true;
+    profile.verificationUTR = utr;
+    await profile.save();
+    res.json({ message: 'Verification request submitted.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error.' });
+  }
+});
+
 // GET all nurses (public) with filters
 router.get('/', async (req, res) => {
   try {

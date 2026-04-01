@@ -22,8 +22,10 @@ const nurseProfileSchema = new mongoose.Schema({
   rating:         { type: Number, default: 0 },
   totalReviews:   { type: Number, default: 0 },
   totalBookings:  { type: Number, default: 0 },
-  isVerified:     { type: Boolean, default: false },
-  isActive:       { type: Boolean, default: true },
+  isVerified:          { type: Boolean, default: false },
+  verificationPending: { type: Boolean, default: false },
+  verificationUTR:     { type: String, default: '' },
+  isActive:            { type: Boolean, default: true },
   createdAt:      { type: Date, default: Date.now }
 });
 
