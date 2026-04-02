@@ -1,21 +1,11 @@
 const express = require('express');
 const router  = express.Router();
-const multer  = require('multer');
-const path    = require('path');
-const fs      = require('fs');
 const Medicine   = require('../models/Medicine');
 const MedicalShop = require('../models/MedicalShop');
 const { protect, shopOwnerOnly } = require('../middleware/authMiddleware');
+const { createCloudinaryUpload } = require('../utils/cloudinary');
 
-// Uploads setup
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename:    (req, file, cb) => cb(null, 'med_' + Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = createCloudinaryUpload('medicines');
 
 // GET medicines for a shop (public)
 router.get('/shop/:shopId', async (req, res) => {
@@ -45,7 +35,7 @@ router.post('/', protect, shopOwnerOnly, upload.single('image'), async (req, res
       price:       Number(req.body.price),
       category:    req.body.category || 'General',
       description: req.body.description || '',
-      image:       req.file ? req.file.filename : '',
+      image:       req.file ? req.file.path : '',
       inStock:     req.body.inStock !== 'false'
     });
     res.status(201).json(medicine);
@@ -80,7 +70,7 @@ router.put('/:id', protect, shopOwnerOnly, upload.single('image'), async (req, r
     medicine.category    = req.body.category     || medicine.category;
     medicine.description = req.body.description  ?? medicine.description;
     medicine.inStock     = req.body.inStock !== undefined ? req.body.inStock !== 'false' : medicine.inStock;
-    if (req.file) medicine.image = req.file.filename;
+    if (req.file) medicine.image = req.file.path;
 
     await medicine.save();
     res.json(medicine);

@@ -1,21 +1,10 @@
 const express = require('express');
 const router  = express.Router();
-const multer  = require('multer');
-const path    = require('path');
-const fs      = require('fs');
 const MedicalShop = require('../models/MedicalShop');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { createCloudinaryUpload } = require('../utils/cloudinary');
 
-// Auto-create uploads folder if it doesn't exist
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename:    (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = createCloudinaryUpload('shops');
 
 // GET all approved shops (public)
 router.get('/', async (req, res) => {
@@ -57,7 +46,7 @@ router.post('/register', protect, upload.single('shopImage'), async (req, res) =
       ...req.body,
       owner: req.user._id,
       services: req.body.services ? req.body.services.split(',') : [],
-      image: req.file ? req.file.filename : ''
+      image: req.file ? req.file.path : ''
     };
     const shop = await MedicalShop.create(shopData);
     res.status(201).json(shop);
