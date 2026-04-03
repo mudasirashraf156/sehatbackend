@@ -71,4 +71,39 @@ async function sendWelcomeEmail(email, firstName, role) {
   });
 }
 
-module.exports = { sendVerificationEmail, sendWelcomeEmail };
+async function sendPasswordResetEmail(email, firstName, token) {
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+  await resend.emails.send({
+    from: 'SehatSehul <noreply@sehatsehul.in>',
+    to: email,
+    subject: 'Reset your SehatSehul password 🔒',
+    html: `
+      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:16px;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <h1 style="font-size:28px;color:#0f172a;margin-bottom:4px;">🩺 SehatSehul</h1>
+          <p style="color:#64748b;font-size:14px;">Healthcare at Your Door · J&K</p>
+        </div>
+        <div style="background:white;border-radius:12px;padding:28px;border:1px solid #e2e8f0;">
+          <h2 style="color:#0f172a;font-size:20px;margin-bottom:8px;">Hi ${firstName}! 👋</h2>
+          <p style="color:#64748b;line-height:1.6;margin-bottom:24px;">
+            We received a request to reset your password. Click the button below to set a new password.
+          </p>
+          <a href="${resetUrl}"
+            style="display:block;background:#0d9488;color:white;text-align:center;padding:14px 24px;border-radius:50px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:20px;">
+            🔒 Reset My Password
+          </a>
+          <p style="color:#94a3b8;font-size:12px;text-align:center;line-height:1.6;">
+            This link expires in <strong>1 hour</strong>.<br/>
+            If you didn't request a password reset, ignore this email — your account is safe.
+          </p>
+        </div>
+        <p style="text-align:center;color:#94a3b8;font-size:11px;margin-top:20px;">
+          © 2025 SehatSehul · Budgam, Srinagar J&K
+        </p>
+      </div>
+    `,
+  });
+}
+
+module.exports = { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail };
