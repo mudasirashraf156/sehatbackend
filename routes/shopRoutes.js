@@ -42,11 +42,20 @@ router.post('/register', protect, upload.single('shopImage'), async (req, res) =
   try {
     const existing = await MedicalShop.findOne({ owner: req.user._id });
     if (existing) return res.status(400).json({ message: 'You already have a registered shop' });
+
+    const paymentRef = req.body.paymentRef?.trim();
+    if (!paymentRef) {
+      return res.status(400).json({ message: 'Payment reference (UTR) is required' });
+    }
+
     const shopData = {
       ...req.body,
       owner: req.user._id,
       services: req.body.services ? req.body.services.split(',') : [],
-      image: req.file ? req.file.path : ''
+      image: req.file ? req.file.path : '',
+      isPaid: false,
+      paymentPending: true,
+      paymentRef,
     };
     const shop = await MedicalShop.create(shopData);
     res.status(201).json(shop);
