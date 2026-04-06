@@ -22,8 +22,9 @@ const medicalShopSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
-  isPaid:      { type: Boolean, default: false },
-  paymentRef:  { type: String, default: '' },
+  isPaid:         { type: Boolean, default: false },
+  paymentPending: { type: Boolean, default: false },
+  paymentRef:     { type: String, default: '' },
   registrationFee: { type: Number, default: 99 },
   rating:      { type: Number, default: 0 },
   totalReviews:{ type: Number, default: 0 },

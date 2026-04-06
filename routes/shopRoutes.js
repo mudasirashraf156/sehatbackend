@@ -56,9 +56,13 @@ router.post('/register', protect, upload.single('shopImage'), async (req, res) =
 // PATCH mark as paid (after payment)
 router.patch('/:id/pay', protect, async (req, res) => {
   try {
+    const { paymentRef } = req.body;
+    if (!paymentRef || paymentRef === 'PENDING_MANUAL') {
+      return res.status(400).json({ message: 'Please provide your UTR / transaction ID' });
+    }
     const shop = await MedicalShop.findByIdAndUpdate(
       req.params.id,
-      { isPaid: true, paymentRef: req.body.paymentRef || 'MANUAL' },
+      { isPaid: false, paymentPending: true, paymentRef },
       { new: true }
     );
     res.json(shop);
