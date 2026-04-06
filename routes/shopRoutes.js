@@ -100,11 +100,16 @@ router.get('/admin/all', protect, adminOnly, async (req, res) => {
 router.patch('/admin/:id/status', protect, adminOnly, async (req, res) => {
   try {
     const { status } = req.body;
-    const shop = await MedicalShop.findByIdAndUpdate(
-      req.params.id,
-      { status, isVerified: status === 'approved' },
-      { new: true }
-    );
+    const update = {
+      status,
+      isVerified: status === 'approved',
+    };
+    // When admin approves, mark payment as confirmed too
+    if (status === 'approved') {
+      update.isPaid = true;
+      update.paymentPending = false;
+    }
+    const shop = await MedicalShop.findByIdAndUpdate(req.params.id, update, { new: true });
     res.json(shop);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
