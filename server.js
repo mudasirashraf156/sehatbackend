@@ -20,7 +20,9 @@ app.use(express.json());
 
 app.use('/api/auth',     require('./routes/authRoutes'));
 app.use('/api/nurses',   require('./routes/nurseRoutes'));
+app.use('/api/doctors',  require('./routes/doctorRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
+app.use('/api/appointments', require('./routes/appointmentRoutes'));
 app.use('/api/reviews',  require('./routes/reviewRoutes'));
 app.use('/api/shops', require('./routes/shopRoutes'));
 app.use('/api/admin',    require('./routes/adminRoutes'));
