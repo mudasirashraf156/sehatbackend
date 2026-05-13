@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const NurseProfile = require('../models/NurseProfile');
+const DoctorProfile = require('../models/DoctorProfile');
 const { protect } = require('../middleware/authMiddleware');
 const crypto = require('crypto');
 const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
@@ -16,11 +17,12 @@ router.post('/register', async (req, res) => {
   try {
     const {
       firstName, lastName, email, phone,
-      password, role, specialization, licenseNumber, city
+      password, role, specialization, licenseNumber, city,
+      medicalLicenseNumber, registrationNumber
     } = req.body;
 
     // ── SECURITY: block admin/unknown roles from self-registration ──
-    const allowedRoles = ['patient', 'nurse', 'shopOwner'];
+    const allowedRoles = ['patient', 'nurse', 'shopOwner', 'doctor'];
     if (!allowedRoles.includes(role)) {
       return res.status(403).json({ message: 'Invalid role. You cannot register with this role.' });
     }
@@ -57,6 +59,24 @@ router.post('/register', async (req, res) => {
           { day: 'Wednesday', startTime: '08:00', endTime: '18:00', available: true },
           { day: 'Thursday', startTime: '08:00', endTime: '18:00', available: true },
           { day: 'Friday', startTime: '08:00', endTime: '18:00', available: true },
+        ]
+      });
+    }
+
+    // Create doctor profile if role is doctor
+    if (role === 'doctor') {
+      await DoctorProfile.create({
+        user: user._id,
+        specialization,
+        medicalLicenseNumber,
+        registrationNumber,
+        city: city || '',
+        availability: [
+          { day: 'Monday', startTime: '09:00', endTime: '17:00', available: true },
+          { day: 'Tuesday', startTime: '09:00', endTime: '17:00', available: true },
+          { day: 'Wednesday', startTime: '09:00', endTime: '17:00', available: true },
+          { day: 'Thursday', startTime: '09:00', endTime: '17:00', available: true },
+          { day: 'Friday', startTime: '09:00', endTime: '17:00', available: true },
         ]
       });
     }

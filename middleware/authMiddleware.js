@@ -18,3 +18,4 @@ exports.nurseOnly   = (req, res, next) => req.user?.role === 'nurse'   ? next() 
 exports.patientOnly = (req, res, next) => req.user?.role === 'patient' ? next() : res.status(403).json({ message: 'Patients only' });
 exports.adminOnly   = (req, res, next) => req.user?.role === 'admin'   ? next() : res.status(403).json({ message: 'Admins only' });
 exports.shopOwnerOnly = (req, res, next) => req.user?.role === 'shopOwner' ? next() : res.status(403).json({ message: 'Shop owners only' });
+exports.doctorOnly  = (req, res, next) => req.user?.role === 'doctor'  ? next() : res.status(403).json({ message: 'Doctors only' });
