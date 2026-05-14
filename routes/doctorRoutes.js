@@ -24,7 +24,7 @@ router.post('/apply-verification', protect, doctorOnly, async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { city, specialization, minRating, search } = req.query;
-    let filter = { isActive: true, isVerified: true };
+    let filter = { isActive: true, $or: [{ isVerified: true }, { verificationPending: true }] };
     if (city) filter.city = new RegExp(city, 'i');
     if (specialization) filter.specialization = specialization;
     if (minRating) filter.rating = { $gte: parseFloat(minRating) };
