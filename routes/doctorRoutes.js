@@ -6,18 +6,15 @@ const Appointment = require('../models/Appointment');
 const Review = require('../models/Review');
 const { protect, doctorOnly } = require('../middleware/authMiddleware');
 
-// POST apply for verification (doctor pays ₹99, submits UTR)
+// POST apply for verification (doctor submits for admin review)
 router.post('/apply-verification', protect, doctorOnly, async (req, res) => {
   try {
-    const { utr } = req.body;
-    if (!utr) return res.status(400).json({ message: 'UTR / Transaction ID is required.' });
     const profile = await DoctorProfile.findOne({ user: req.user._id });
     if (!profile) return res.status(404).json({ message: 'Doctor profile not found.' });
     if (profile.isVerified) return res.status(400).json({ message: 'Already verified.' });
     profile.verificationPending = true;
-    profile.verificationUTR = utr;
     await profile.save();
-    res.json({ message: 'Verification request submitted.' });
+    res.json({ message: 'Verification request submitted. Admin will review within 24-48 hours.' });
   } catch (err) {
     res.status(500).json({ message: 'Server error.' });
   }
