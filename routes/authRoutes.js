@@ -71,6 +71,8 @@ router.post('/register', async (req, res) => {
         medicalLicenseNumber,
         registrationNumber,
         city: city || '',
+        verificationPending: true,
+        isActive: true,
         availability: [
           { day: 'Monday', startTime: '09:00', endTime: '17:00', available: true },
           { day: 'Tuesday', startTime: '09:00', endTime: '17:00', available: true },
